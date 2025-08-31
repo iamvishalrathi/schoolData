@@ -1,24 +1,37 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import axios from "axios";
 
 export default function ShowSchools() {
+  const searchParams = useSearchParams();
   const [schools, setSchools] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(6); // 6 schools per page
+  const [limit] = useState(9); // 9 schools per page for better grid layout
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get('search') || "");
+  const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || "");
+  const [selectedBoard, setSelectedBoard] = useState(searchParams.get('board') || "");
+  const [selectedGenderType, setSelectedGenderType] = useState(searchParams.get('gender_type') || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cities, setCities] = useState([]);
 
-  const fetchSchools = async () => {
+  const boards = ["CBSE", "ICSE", "IB", "IGCSE", "Cambridge", "State Board", "Pre-School"];
+  const genderTypes = ["All Boys", "All Girls", "Co-Education"];
+
+  const fetchSchools = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("http://localhost:5000/api/schools", {
-        params: { page, limit, search },
-      });
+      const params = { page, limit };
+      if (search) params.search = search;
+      if (selectedCity) params.city = selectedCity;
+      if (selectedBoard) params.board = selectedBoard;
+      if (selectedGenderType) params.gender_type = selectedGenderType;
+
+      const res = await axios.get("http://localhost:5000/api/schools", { params });
       setSchools(res.data.schools || []);
       setTotal(res.data.total || 0);
       setTotalPages(res.data.totalPages || 0);
@@ -28,46 +41,168 @@ export default function ShowSchools() {
     } finally {
       setLoading(false);
     }
+  }, [page, limit, search, selectedCity, selectedBoard, selectedGenderType]);
+
+  const fetchCities = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/cities");
+      setCities(response.data);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
   };
 
   useEffect(() => {
+    fetchCities();
+  }, []);
+
+  useEffect(() => {
     fetchSchools();
-  }, [page, search]);
+  }, [page, search, selectedCity, selectedBoard, selectedGenderType, fetchSchools]);
 
   const handleSearch = (e) => {
-    setPage(1); // reset to first page on new search
+    setPage(1);
     setSearch(e.target.value);
   };
 
+  const handleFilterChange = (type, value) => {
+    setPage(1);
+    switch (type) {
+      case 'city':
+        setSelectedCity(value);
+        break;
+      case 'board':
+        setSelectedBoard(value);
+        break;
+      case 'gender_type':
+        setSelectedGenderType(value);
+        break;
+    }
+  };
+
+  const clearFilters = () => {
+    setPage(1);
+    setSearch("");
+    setSelectedCity("");
+    setSelectedBoard("");
+    setSelectedGenderType("");
+  };
+
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span key={i} className="text-yellow-400">★</span>);
+    }
+    if (hasHalfStar) {
+      stars.push(<span key="half" className="text-yellow-400">☆</span>);
+    }
+    return stars;
+  };
+
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Our Schools
+            Find Schools
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover quality educational institutions in your area
+            Discover quality educational institutions that match your preferences
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-8 flex justify-center">
-          <div className="relative w-full max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search by school name, city, or address..."
+                value={search}
+                onChange={handleSearch}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search by name, city, or address..."
-              value={search}
-              onChange={handleSearch}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            />
           </div>
+
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <select
+              value={selectedCity}
+              onChange={(e) => handleFilterChange('city', e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Cities</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+
+            <select
+              value={selectedBoard}
+              onChange={(e) => handleFilterChange('board', e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Boards</option>
+              {boards.map((board) => (
+                <option key={board} value={board}>{board}</option>
+              ))}
+            </select>
+
+            <select
+              value={selectedGenderType}
+              onChange={(e) => handleFilterChange('gender_type', e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Gender Types</option>
+              {genderTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+
+            <button
+              onClick={clearFilters}
+              className="bg-gray-100 text-gray-700 p-3 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Clear Filters
+            </button>
+          </div>
+
+          {/* Active Filters Display */}
+          {(search || selectedCity || selectedBoard || selectedGenderType) && (
+            <div className="flex flex-wrap gap-2">
+              {search && (
+                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                  Search: {search}
+                </span>
+              )}
+              {selectedCity && (
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                  City: {selectedCity}
+                </span>
+              )}
+              {selectedBoard && (
+                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                  Board: {selectedBoard}
+                </span>
+              )}
+              {selectedGenderType && (
+                <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm">
+                  Type: {selectedGenderType}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Loading State */}
@@ -93,7 +228,7 @@ export default function ShowSchools() {
             <div className="text-6xl mb-4">🏫</div>
             <h3 className="text-xl font-medium text-gray-900 mb-2">No schools found</h3>
             <p className="text-gray-600">
-              {search ? "Try adjusting your search terms" : "No schools have been added yet"}
+              Try adjusting your search terms or filters
             </p>
           </div>
         )}
@@ -101,7 +236,7 @@ export default function ShowSchools() {
         {/* School Cards */}
         {!loading && !error && schools.length > 0 && (
           <>
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {schools.map((school) => (
                 <div key={school.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                   {school.image ? (
@@ -120,16 +255,66 @@ export default function ShowSchools() {
                       </svg>
                     </div>
                   )}
+                  
                   <div className="p-6">
+                    {/* Board Badge */}
+                    <div className="mb-3">
+                      <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                        {school.board}
+                      </span>
+                    </div>
+
+                    {/* School Name */}
                     <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
                       {school.name}
                     </h2>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+
+                    {/* Location */}
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                       📍 {school.address}
                     </p>
-                    <p className="text-sm text-gray-500 font-medium">
+                    <p className="text-sm text-gray-500 font-medium mb-3">
                       🏙️ {school.city}
                     </p>
+
+                    {/* Rating */}
+                    {school.rating > 0 && (
+                      <div className="flex items-center mb-3">
+                        <div className="flex">
+                          {renderStars(school.rating)}
+                        </div>
+                        <span className="ml-2 text-sm text-gray-600">
+                          {school.rating} ({school.total_reviews} reviews)
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Additional Info */}
+                    <div className="space-y-2 text-sm text-gray-600">
+                      {school.gender_type && (
+                        <p>👥 {school.gender_type}</p>
+                      )}
+                      {school.established_year && (
+                        <p>📅 Est. {school.established_year}</p>
+                      )}
+                      {school.fees_range && (
+                        <p>💰 {school.fees_range}</p>
+                      )}
+                    </div>
+
+                    {/* Description */}
+                    {school.description && (
+                      <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+                        {school.description}
+                      </p>
+                    )}
+
+                    {/* Review Button */}
+                    <div className="mt-4 pt-4 border-t">
+                      <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Review Now!
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -138,7 +323,7 @@ export default function ShowSchools() {
             {/* Results Summary */}
             <div className="mt-8 text-center text-sm text-gray-600">
               Showing {schools.length} of {total} schools
-              {search && ` for "${search}"`}
+              {(search || selectedCity || selectedBoard || selectedGenderType) && " with applied filters"}
             </div>
 
             {/* Pagination */}

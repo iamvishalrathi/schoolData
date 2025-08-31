@@ -151,6 +151,107 @@ export default function AddSchool() {
               </div>
             </div>
 
+            {/* Board and Gender Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Board *
+                </label>
+                <select
+                  {...register("board", { required: "Board is required" })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                >
+                  <option value="">Select Board</option>
+                  <option value="CBSE">CBSE</option>
+                  <option value="ICSE">ICSE</option>
+                  <option value="IB">IB</option>
+                  <option value="IGCSE">IGCSE</option>
+                  <option value="Cambridge">Cambridge</option>
+                  <option value="State Board">State Board</option>
+                  <option value="Pre-School">Pre-School</option>
+                </select>
+                {errors.board && <p className="text-red-500 text-sm mt-1">{errors.board.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Gender Type *
+                </label>
+                <select
+                  {...register("gender_type", { required: "Gender type is required" })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                >
+                  <option value="">Select Gender Type</option>
+                  <option value="All Boys">All Boys</option>
+                  <option value="All Girls">All Girls</option>
+                  <option value="Co-Education">Co-Education</option>
+                </select>
+                {errors.gender_type && <p className="text-red-500 text-sm mt-1">{errors.gender_type.message}</p>}
+              </div>
+            </div>
+
+            {/* Established Year and Website */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Established Year
+                </label>
+                <input
+                  {...register("established_year", {
+                    min: { value: 1800, message: "Year must be after 1800" },
+                    max: { value: new Date().getFullYear(), message: "Year cannot be in the future" }
+                  })}
+                  placeholder="e.g., 1995"
+                  type="number"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+                {errors.established_year && <p className="text-red-500 text-sm mt-1">{errors.established_year.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Website
+                </label>
+                <input
+                  {...register("website", {
+                    pattern: {
+                      value: /^https?:\/\/.+/,
+                      message: "Please enter a valid URL starting with http:// or https://"
+                    }
+                  })}
+                  placeholder="e.g., https://www.school.com"
+                  type="url"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+                {errors.website && <p className="text-red-500 text-sm mt-1">{errors.website.message}</p>}
+              </div>
+            </div>
+
+            {/* Fees Range */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fees Range
+              </label>
+              <input
+                {...register("fees_range")}
+                placeholder="e.g., ₹50,000 - ₹1,00,000"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                {...register("description")}
+                placeholder="Brief description about the school..."
+                rows="4"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 resize-none"
+              />
+            </div>
+
             {/* Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
