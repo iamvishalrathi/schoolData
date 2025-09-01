@@ -5,22 +5,22 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function setupDatabase() {
-  let connection;
-  
-  try {
-    // Create connection to the database
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      port: process.env.DB_PORT || 3306
-    });
+    let connection;
 
-    console.log('Connected to MySQL database');
+    try {
+        // Create connection to the database
+        connection = await mysql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            port: process.env.DB_PORT || 3306
+        });
 
-    // Create schools table
-    const createSchoolsTable = `
+        console.log('Connected to MySQL database');
+
+        // Create schools table
+        const createSchoolsTable = `
       CREATE TABLE IF NOT EXISTS schools (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -41,11 +41,11 @@ async function setupDatabase() {
       )
     `;
 
-    await connection.execute(createSchoolsTable);
-    console.log('Schools table created successfully');
+        await connection.execute(createSchoolsTable);
+        console.log('Schools table created successfully');
 
-    // Create newsletter subscriptions table
-    const createNewsletterTable = `
+        // Create newsletter subscriptions table
+        const createNewsletterTable = `
       CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -53,11 +53,11 @@ async function setupDatabase() {
       )
     `;
 
-    await connection.execute(createNewsletterTable);
-    console.log('Newsletter subscriptions table created successfully');
+        await connection.execute(createNewsletterTable);
+        console.log('Newsletter subscriptions table created successfully');
 
-    // Insert sample data
-    const insertSampleData = `
+        // Insert sample data
+        const insertSampleData = `
       INSERT IGNORE INTO schools (name, address, city, state, contact, email_id, board, gender_type, established_year, rating, total_reviews, fees_range) VALUES
       ('La Martiniere College', 'Hazratganj', 'Lucknow', 'Uttar Pradesh', '9876543210', 'info@lamartiniere.com', 'ICSE', 'All Boys', 1845, 4.5, 150, '₹50,000 - ₹1,00,000'),
       ('Jagran Public School', 'Gomti Nagar', 'Lucknow', 'Uttar Pradesh', '9876543211', 'contact@jagranschool.com', 'CBSE', 'Co-Education', 1990, 4.3, 200, '₹30,000 - ₹60,000'),
@@ -67,19 +67,19 @@ async function setupDatabase() {
       ('The Paras World School', 'Sector 50', 'Gurgaon', 'Haryana', '9876543215', 'admin@parasworld.com', 'CBSE', 'Co-Education', 2010, 4.1, 110, '₹80,000 - ₹1,50,000')
     `;
 
-    await connection.execute(insertSampleData);
-    console.log('Sample data inserted successfully');
+        await connection.execute(insertSampleData);
+        console.log('Sample data inserted successfully');
 
-    console.log('Database setup completed successfully!');
+        console.log('Database setup completed successfully!');
 
-  } catch (error) {
-    console.error('Database setup failed:', error.message);
-  } finally {
-    if (connection) {
-      await connection.end();
-      console.log('Database connection closed');
+    } catch (error) {
+        console.error('Database setup failed:', error.message);
+    } finally {
+        if (connection) {
+            await connection.end();
+            console.log('Database connection closed');
+        }
     }
-  }
 }
 
 // Run the setup
