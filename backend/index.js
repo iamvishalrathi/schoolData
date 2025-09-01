@@ -4,6 +4,16 @@ import mysql from "mysql2";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
+
+// Debug: Log environment variables
+console.log('Environment variables loaded:');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_NAME:', process.env.DB_NAME);
 
 const app = express();
 app.use(cors());
