@@ -2,6 +2,7 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import axios from "axios";
+import { createApiUrl } from "../../lib/api";
 
 export default function AddSchool() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -22,7 +23,7 @@ export default function AddSchool() {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/schools", formData, {
+      await axios.post(createApiUrl("api/schools"), formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setMessage("School added successfully!");

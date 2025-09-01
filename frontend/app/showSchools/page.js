@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
+import { createApiUrl } from "../../lib/api";
 
 function ShowSchoolsContent() {
   const searchParams = useSearchParams();
@@ -32,7 +33,7 @@ function ShowSchoolsContent() {
       if (selectedBoard) params.board = selectedBoard;
       if (selectedGenderType) params.gender_type = selectedGenderType;
 
-      const res = await axios.get("http://localhost:5000/api/schools", { params });
+      const res = await axios.get(createApiUrl("api/schools"), { params });
       setSchools(res.data.schools || []);
       setTotal(res.data.total || 0);
       setTotalPages(res.data.totalPages || 0);
@@ -46,7 +47,7 @@ function ShowSchoolsContent() {
 
   const fetchCities = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/cities");
+      const response = await axios.get(createApiUrl("api/cities"));
       setCities(response.data);
     } catch (error) {
       console.error("Error fetching cities:", error);

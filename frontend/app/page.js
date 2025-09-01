@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "../lib/api";
+import { API_BASE_URL, createApiUrl } from "../lib/api";
 
 export default function Home() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function Home() {
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/cities`);
+        const response = await axios.get(createApiUrl("api/cities"));
         setCities(response.data);
       } catch (error) {
         console.error("Error fetching cities:", error);
@@ -47,7 +47,7 @@ export default function Home() {
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/newsletter`, { email });
+      const response = await axios.post(createApiUrl("api/newsletter"), { email });
       setSubscriptionMessage(response.data.message);
       setEmail("");
       setTimeout(() => setSubscriptionMessage(""), 3000);
