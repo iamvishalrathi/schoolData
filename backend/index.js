@@ -16,7 +16,10 @@ console.log('DB_USER:', process.env.DB_USER);
 console.log('DB_NAME:', process.env.DB_NAME);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
 // Create schoolImages directory if it doesn't exist
@@ -58,13 +61,13 @@ const upload = multer({ storage });
 
 // API: Add School
 app.post("/api/schools", upload.single("image"), (req, res) => {
-  const { 
-    name, 
-    address, 
-    city, 
-    state, 
-    contact, 
-    email_id, 
+  const {
+    name,
+    address,
+    city,
+    state,
+    contact,
+    email_id,
     board = 'CBSE',
     gender_type = 'Co-Education',
     established_year,
@@ -78,7 +81,7 @@ app.post("/api/schools", upload.single("image"), (req, res) => {
     name, address, city, state, contact, image, email_id, 
     board, gender_type, established_year, website, description, fees_range
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-  
+
   db.query(sql, [
     name, address, city, state, contact, imagePath, email_id,
     board, gender_type, established_year, website, description, fees_range
@@ -102,22 +105,22 @@ app.get("/api/schools", (req, res) => {
   let queryParams = [];
 
   const conditions = [];
-  
+
   if (search) {
     conditions.push("(name LIKE ? OR city LIKE ? OR address LIKE ?)");
     queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
-  
+
   if (city) {
     conditions.push("city = ?");
     queryParams.push(city);
   }
-  
+
   if (board) {
     conditions.push("board = ?");
     queryParams.push(board);
   }
-  
+
   if (genderType) {
     conditions.push("gender_type = ?");
     queryParams.push(genderType);
@@ -165,7 +168,7 @@ app.get("/api/cities", (req, res) => {
 // API: Newsletter subscription
 app.post("/api/newsletter", (req, res) => {
   const { email } = req.body;
-  
+
   if (!email || !email.includes('@')) {
     return res.status(400).json({ error: "Valid email is required" });
   }

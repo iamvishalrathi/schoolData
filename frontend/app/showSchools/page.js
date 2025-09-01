@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import axios from "axios";
 
-export default function ShowSchools() {
+function ShowSchoolsContent() {
   const searchParams = useSearchParams();
   const [schools, setSchools] = useState([]);
   const [page, setPage] = useState(1);
@@ -240,9 +241,11 @@ export default function ShowSchools() {
               {schools.map((school) => (
                 <div key={school.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                   {school.image ? (
-                    <img
+                    <Image
                       src={`http://localhost:5000${school.image}`}
                       alt={school.name}
+                      width={400}
+                      height={200}
                       className="w-full h-48 object-cover"
                       onError={(e) => {
                         e.target.src = "/api/placeholder/400/200";
@@ -391,5 +394,15 @@ export default function ShowSchools() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ShowSchools() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">
+      <div className="text-lg">Loading...</div>
+    </div>}>
+      <ShowSchoolsContent />
+    </Suspense>
   );
 }
