@@ -32,6 +32,30 @@ CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
   status ENUM('active', 'unsubscribed') DEFAULT 'active'
 );
 
+-- Add contact submissions table
+CREATE TABLE IF NOT EXISTS contact_submissions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  subject VARCHAR(255),
+  message TEXT NOT NULL,
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('new', 'read', 'responded') DEFAULT 'new'
+);
+
+-- Add school reviews table
+CREATE TABLE IF NOT EXISTS school_reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  school_id INT NOT NULL,
+  rating DECIMAL(2,1) NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  review TEXT,
+  reviewer_name VARCHAR(255),
+  reviewer_email VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+);
+
 -- Insert sample data (optional)
 INSERT INTO schools (name, address, city, state, contact, email_id, board, gender_type, established_year, rating, total_reviews, fees_range) VALUES
 ('La Martiniere College', 'Hazratganj', 'Lucknow', 'Uttar Pradesh', '9876543210', 'info@lamartiniere.com', 'ICSE', 'All Boys', 1845, 4.5, 150, '₹50,000 - ₹1,00,000'),

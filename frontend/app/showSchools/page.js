@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import axios from "axios";
 import { createApiUrl } from "../../lib/api";
 
@@ -241,24 +242,26 @@ function ShowSchoolsContent() {
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {schools.map((school) => (
                 <div key={school.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  {school.image ? (
-                    <Image
-                      src={`http://localhost:5000${school.image}`}
-                      alt={school.name}
-                      width={400}
-                      height={200}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        e.target.src = "/api/placeholder/400/200";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                      <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                    </div>
-                  )}
+                  <Link href={`/school/${school.id}`}>
+                    {school.image ? (
+                      <Image
+                        src={createApiUrl(school.image)}
+                        alt={school.name}
+                        width={400}
+                        height={200}
+                        className="w-full h-48 object-cover cursor-pointer"
+                        onError={(e) => {
+                          e.target.src = "/api/placeholder/400/200";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center cursor-pointer">
+                        <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                    )}
+                  </Link>
                   
                   <div className="p-6">
                     {/* Board Badge */}
@@ -269,9 +272,11 @@ function ShowSchoolsContent() {
                     </div>
 
                     {/* School Name */}
-                    <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
-                      {school.name}
-                    </h2>
+                    <Link href={`/school/${school.id}`}>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer transition-colors">
+                        {school.name}
+                      </h2>
+                    </Link>
 
                     {/* Location */}
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
@@ -313,11 +318,20 @@ function ShowSchoolsContent() {
                       </p>
                     )}
 
-                    {/* Review Button */}
-                    <div className="mt-4 pt-4 border-t">
-                      <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        Review Now!
-                      </button>
+                    {/* Action Buttons */}
+                    <div className="mt-4 pt-4 border-t flex space-x-2">
+                      <Link 
+                        href={`/school/${school.id}`}
+                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center"
+                      >
+                        View Details
+                      </Link>
+                      <Link 
+                        href={`/school/${school.id}#reviews`}
+                        className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-center"
+                      >
+                        Review
+                      </Link>
                     </div>
                   </div>
                 </div>

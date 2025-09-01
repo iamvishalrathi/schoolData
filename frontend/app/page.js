@@ -12,6 +12,12 @@ export default function Home() {
   const [cities, setCities] = useState([]);
   const [email, setEmail] = useState("");
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
+  const [stats, setStats] = useState({
+    totalSchools: 1000,
+    totalCities: 50,
+    totalBoards: 6,
+    totalSubscribers: 10000
+  });
 
   // Fetch cities for dropdown
   useEffect(() => {
@@ -24,6 +30,20 @@ export default function Home() {
       }
     };
     fetchCities();
+  }, []);
+
+  // Fetch statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get(createApiUrl("api/stats"));
+        setStats(response.data);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+        // Keep default values if API fails
+      }
+    };
+    fetchStats();
   }, []);
 
   const popularCities = [
@@ -91,15 +111,15 @@ export default function Home() {
               {/* Stats */}
               <div className="flex flex-wrap justify-center gap-8 mb-12">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-300">1000+</div>
+                  <div className="text-3xl font-bold text-yellow-300">{stats.totalSchools}+</div>
                   <div className="text-white/80">Schools Listed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-300">50+</div>
+                  <div className="text-3xl font-bold text-yellow-300">{stats.totalCities}+</div>
                   <div className="text-white/80">Cities Covered</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-300">10K+</div>
+                  <div className="text-3xl font-bold text-yellow-300">{stats.totalSubscribers > 1000 ? Math.floor(stats.totalSubscribers/1000) + 'K' : stats.totalSubscribers}+</div>
                   <div className="text-white/80">Happy Parents</div>
                 </div>
               </div>

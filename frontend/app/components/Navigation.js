@@ -30,9 +30,12 @@ export default function Navigation() {
             >
               School Portal
             </Link>
-            <div className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer transition-colors">
-              Common Admissions
-            </div>
+            <Link 
+              href="/contact" 
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Contact
+            </Link>
             <div className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer transition-colors">
               Blog
             </div>
@@ -96,9 +99,13 @@ export default function Navigation() {
               >
                 School Portal
               </Link>
-              <div className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer transition-colors">
-                Common Admissions
-              </div>
+              <Link 
+                href="/contact" 
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact
+              </Link>
               <div className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer transition-colors">
                 Blog
               </div>
